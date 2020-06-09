@@ -3,15 +3,18 @@ package com.miaoshaproject.controller;
 import com.miaoshaproject.controller.viewobject.ItemVO;
 import com.miaoshaproject.error.BusinessException;
 import com.miaoshaproject.response.CommonReturnType;
+import com.miaoshaproject.service.CacheService;
 import com.miaoshaproject.service.ItemService;
 import com.miaoshaproject.service.model.ItemModel;
 import org.joda.time.format.DateTimeFormat;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -22,10 +25,18 @@ import java.util.stream.Collectors;
 @RequestMapping("/item")
 //@CrossOrigin 可实现跨域请求
 @CrossOrigin(allowCredentials = "true", allowedHeaders = "*", origins = {"*"})
-public class ItemController extends BaseController {
+//public class ItemController extends BaseController {
+public class ItemController {
+    public static final String CONTENT_TYPE_FORMED = "application/x-www-form-urlencoded";
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Autowired
+    private CacheService cacheService;
 
     //创建商品的controller
     @RequestMapping(value = "/create", consumes = {CONTENT_TYPE_FORMED})
@@ -58,11 +69,26 @@ public class ItemController extends BaseController {
     //解析json数据
     @ResponseBody
     public CommonReturnType getItem(@RequestParam("id") Integer id) throws BusinessException {
-        ItemModel itemModel = itemService.getItemById(id);
-        //若获取的对应商品 id不存在
-//        if (itemModel == null) {
-//            throw new BusinessException(EmBussinessError.USER_NOT_EXIST_ITEM);
-//        }
+        ItemModel itemModel = null;
+
+        //先取本地缓存
+        itemModel = (ItemModel) cacheService.getFromCommonCache("item_" + id);
+
+        if(itemModel == null) {
+            // 根据商品id到Redis中获取
+            itemModel = (ItemModel)redisTemplate.opsForValue().get("item_"+id);
+
+            //若redis内不存在对应的itemModel，则访问下游service
+            if (itemModel == null) {
+                itemModel = itemService.getItemById(id);
+                //设置itemModel到redis内
+                redisTemplate.opsForValue().set("item_"+id, itemModel);
+                redisTemplate.expire("item_"+id,10, TimeUnit.MINUTES);
+            }
+            //填充本地缓存
+            cacheService.setCommonCache("item_"+id, itemModel);
+        }
+
         ItemVO itemVO = convertVOFromModel(itemModel);
 
         return CommonReturnType.create(itemVO);

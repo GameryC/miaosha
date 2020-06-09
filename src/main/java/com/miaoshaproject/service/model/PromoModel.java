@@ -2,13 +2,14 @@ package com.miaoshaproject.service.model;
 
 import org.joda.time.DateTime;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
  * @author yangchen
  * @create 2020-06-03-17:04
  */
-public class PromoModel {
+public class PromoModel implements Serializable {
     // 秒杀活动状态 1-表示还未开始，2-表示进行中，3-表示已结束
     private Integer status;
 

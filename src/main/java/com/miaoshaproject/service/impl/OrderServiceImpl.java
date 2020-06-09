@@ -63,14 +63,14 @@ public class OrderServiceImpl implements OrderService {
         //校验活动信息
         if (promoId != null){
             //校验对应活动是否存在这个适用商品
-            System.out.println("promoId"+promoId.intValue());
-            System.out.println("getItemId"+itemModel.getPromoModel().getItemId());
+            System.out.println("in OrderSI createOrder(): promoId: "+promoId.intValue());
+            System.out.println("in OrderSI createOrder(): getItemId: "+itemModel.getPromoModel().getItemId());
             if (promoId.intValue() != itemModel.getPromoModel().getItemId()){
                 throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "活动信息不正确");
+                //校验活动是否正在进行中
+            } else if (itemModel.getPromoModel().getStatus() != 2){
+                throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "活动还未开始");
             }
-        }//校验活动是否正在进行中
-        else if (itemModel.getPromoModel().getStatus() != 2){
-            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "活动还未开始");
         }
         //2.落单减库存，（支付减库存）
 

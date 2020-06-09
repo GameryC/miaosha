@@ -123,7 +123,7 @@ public class ItemServiceImpl implements ItemService {
         itemModel.setPrice(new BigDecimal(itemDO.getPrice()));
         //通过 itemId获取活动的商品信息
         PromoModel promoModel = promoService.getPromoByItemId(itemModel.getId());
-        System.out.println(promoModel);
+        System.out.println("in ItemSI getItemById: " + promoModel);
         //判断活动未开始 或者是进行中
         if (promoModel != null && promoModel.getStatus().intValue() != 3) {
             //将活动信息设置在 商品页

@@ -4,12 +4,13 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * @author yangchen
  * @create 2020-05-23-14:23
  */
-public class UserModel {
+public class UserModel implements Serializable {
     private Integer id;
     @NotBlank(message = "用户名不能为空！")
     private String name;
@@ -85,5 +86,18 @@ public class UserModel {
 
     public void setEncrptPassword(String encrptPassword) {
         this.encrptPassword = encrptPassword;
+    }
+
+    @Override
+    public String toString() {
+        return "UserModel{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", gender=" + gender +
+                ", age=" + age +
+                ", telephone='" + telephone + '\'' +
+                ", registerMode='" + registerMode + '\'' +
+                ", encrptPassword='" + encrptPassword + '\'' +
+                '}';
     }
 }
