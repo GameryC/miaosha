@@ -11,6 +11,9 @@ public interface UserService {
     //用户id 获得 用户对象
     UserModel getUserById(Integer id);
 
+    //在缓存中获取用户信息
+    UserModel getUserByIdInCache(Integer id);
+
     void register(UserModel userModel) throws BusinessException;
 
     /**

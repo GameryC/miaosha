@@ -7,6 +7,9 @@ import com.miaoshaproject.response.CommonReturnType;
 import com.miaoshaproject.service.OrderService;
 import com.miaoshaproject.service.model.OrderModel;
 import com.miaoshaproject.service.model.UserModel;
+import org.apache.rocketmq.client.exception.MQBrokerException;
+import org.apache.rocketmq.client.exception.MQClientException;
+import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +42,7 @@ public class OrderController {
     @ResponseBody
     public CommonReturnType createOrder(@RequestParam(name = "itemId") Integer itemId,
                                         @RequestParam(name = "amount") Integer amount,
-                                        @RequestParam(name = "promoId",required = false) Integer promoId) throws BusinessException {
+                                        @RequestParam(name = "promoId",required = false) Integer promoId) throws BusinessException, InterruptedException, RemotingException, MQClientException, MQBrokerException {
 
 
 //        Boolean isLogin = (Boolean) httpServletRequest.getSession().getAttribute("IS_LOGIN");

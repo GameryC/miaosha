@@ -12,6 +12,9 @@ import com.miaoshaproject.service.UserService;
 import com.miaoshaproject.service.model.ItemModel;
 import com.miaoshaproject.service.model.OrderModel;
 import com.miaoshaproject.service.model.UserModel;
+import org.apache.rocketmq.client.exception.MQBrokerException;
+import org.apache.rocketmq.client.exception.MQClientException;
+import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,16 +46,18 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public OrderModel creatOrder(Integer userId, Integer itemId, Integer promoId, Integer amount) throws BusinessException {
+    public OrderModel creatOrder(Integer userId, Integer itemId, Integer promoId, Integer amount) throws BusinessException, InterruptedException, RemotingException, MQClientException, MQBrokerException {
         //1.校验下单状态，下单的商品是否存在，用户是否合法，购买数量是否正常
         //根据商品ID查询商品信息和库存
-        ItemModel itemModel = itemService.getItemById(itemId);
+//        ItemModel itemModel = itemService.getItemById(itemId);
+        ItemModel itemModel = itemService.getItemByIdInCache(itemId);
         if (itemModel == null) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "商品信息不存在");
         }
 
         //校验用户是否存在异常
-        UserModel userModel = userService.getUserById(userId);
+//        UserModel userModel = userService.getUserById(userId);
+        UserModel userModel = userService.getUserByIdInCache(userId);
         if (userModel == null) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "用户信息不存在");
         }
